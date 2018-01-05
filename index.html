@@ -58,62 +58,125 @@
   <script src="http://d3js.org/topojson.v1.min.js"></script>
 
   <style>
-  #info {
-    background-color:#c8ba09;
+  svg {
+  background: #ddd;
+  font: 10px sans-serif;
+}
+
+.line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+  stroke-dasharray: 2,5;
+}
+
   </style>
 </head>
 <body>
   <div id="info"style="width: 960px;"></div>
   <script>
-  var minArea, curColor;
+    var margin = {top: 10, right: 10, bottom: 20, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
 
-  var svg = d3.select("body").append("svg")
-    .attr("width", 960)
-    .attr("height", 300);
 
-  var circles = svg.append('circle').attr('cx',50).attr('cy',50).attr('r',20).style('fill','rgb(255,0,255)')
+var npoints = 100;
+var ptdata = [];
 
-  animation();
+var randompoints = []
 
-  function animation() {
-    svg.transition()
-        .duration(750)
-        .tween("precision", function() {
-          var area = d3.interpolateRound(50, 600);
-          var color = d3.interpolateRgb('rgb(255,0,255)', 'rgb(0,255,0)');
-          return function(t) {
-            minArea = area(t);
-            curColor = color(t)
-            render();
-          };
-        })
-      .transition()
-        .duration(750)
-        .tween("precision", function() {
-          var area = d3.interpolateRound(600, 50);
-          var color = d3.interpolateRgb('rgb(0,255,0)', 'rgb(255,0,255)');
-          return function(t) {
-            minArea = area(t);
-            curColor = color(t)
-            render();
-          };
-        })
-      .transition()
-        .duration(250)
-        .each("end", animation);
-  }
+var line = d3.svg.line()
+    .interpolate("basis")
+    .x(function(d, i) { return d[0]; })
+    .y(function(d, i) { return d[1]; });
 
-  function render() {
-    var n = 0;
+var line2 = d3.svg.line();
+
+    var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate (" + margin.left + "," + margin.top + ")");
+
+   var svgagain = d3.select("body").select("svg")
+    .on("mousemove", function() { var pt = d3.mouse(this); puts(pt); });
+
+    var path = svg.append("g")
+    .append("path")
+    .data([ptdata])
+    .attr("class", "line")
+    .attr("d", line);
+
+    function tick(pt) {
+      ptdata.push(pt);
+
+      path 
+      .attr("d", function(d) {return line(d);})
+
+      if (ptdata.length > npoints) {
+        ptdata.shift();
+      }
+    }
+    function puts(pt) {
+      ptdata.push(pt);
+
+      path 
+      .attr("d", function(d) {return line(d);})
+
+      if (ptdata.length > npoints) {
+        ptdata.shift();
+      }
+    }
+
+  // var minArea, curColor;
+
+  // var svg = d3.select("body").append("svg")
+  //   .attr("width", 960)
+  //   .attr("height", 300);
+
+  // var circles = svg.append('circle').attr('cx',50).attr('cy',50).attr('r',20).style('fill','rgb(255,0,255)')
+
+  // animation();
+
+  // function animation() {
+  //   svg.transition()
+  //       .duration(750)
+  //       .tween("precision", function() {
+  //         var area = d3.interpolateRound(300, 600);
+  //         var color = d3.interpolateRgb('rgb(255,0,255)', 'rgb(0,255,0)');
+  //         return function(t) {
+  //           minArea = area(t);
+  //           curColor = color(t)
+  //           render();
+  //         };
+  //       })
+  //     .transition()
+  //       .duration(750)
+  //       .tween("precision", function() {
+  //         var area = d3.interpolateRound(600, 300);
+  //         var color = d3.interpolateRgb('rgb(0,255,0)', 'rgb(255,0,255)');
+  //         return function(t) {
+  //           minArea = area(t);
+  //           curColor = color(t)
+  //           render();
+  //         };
+  //       })
+  //     .transition()
+  //       .duration(250)
+  //       .each("end", animation);
+  // }
+
+  // function render() {
+  //   var n = 0;
     
-    var color = 'rgb(' + curColor.r + ',' + curColor.g + ',' + curColor.b + ')'
-    circles.attr('cx',minArea).style('fill',color);
+  //   var color = 'rgb(' + curColor.r + ',' + curColor.g + ',' + curColor.b + ')'
+  //   circles.attr('cx',minArea).style('fill',color);
 
-    console.log(color)
+  //   console.log(color)
     
 
-    //text.text(formatArea(minArea) + "px² / " + formatPercent(n / m));
-  }
+  //   //text.text(formatArea(minArea) + "px² / " + formatPercent(n / m));
+  // }
   
   </script>
  </body>
